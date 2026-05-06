@@ -20,6 +20,7 @@ INSERT_INTERVAL_SECONDS = int(os.getenv("INSERT_INTERVAL_SECONDS", "3"))
 TEMPERATURE_TOPIC = os.getenv("TEMPERATURE_TOPIC", "capteur/temperature")
 HUMIDITY_TOPIC = os.getenv("HUMIDITY_TOPIC", "capteur/humidite")
 SENSOR_ID = os.getenv("SENSOR_ID", "ESP8266_DHT11")
+ID_ENTREPOT = int(os.getenv("ID_ENTREPOT", "1"))
 
 
 latest_measurements = {
@@ -47,17 +48,13 @@ def init_db() -> None:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                CREATE TABLE IF NOT EXISTS climate_readings (
-                    id BIGSERIAL PRIMARY KEY,
-                    sensor_id TEXT NOT NULL,
-                    temperature_c DOUBLE PRECISION,
-                    humidity_pct DOUBLE PRECISION,
-                    temperature_raw TEXT,
-                    humidity_raw TEXT,
-                    temperature_received_at TIMESTAMPTZ,
-                    humidity_received_at TIMESTAMPTZ,
-                    recorded_at TIMESTAMPTZ NOT NULL,
-                    mqtt_broker TEXT NOT NULL
+                CREATE TABLE IF NOT EXISTS "capteur" (
+                    "ID_capteur" serial NOT NULL,
+                    "humidité" double precision,
+                    "temperature" double precision,
+                    "date" date,
+                    "ID_entrepot" integer NOT NULL,
+                    PRIMARY KEY ("ID_capteur")
                 )
                 """
             )
@@ -117,34 +114,25 @@ def insert_snapshot() -> None:
         }
 
     recorded_at = datetime.now(timezone.utc)
+    record_date = recorded_at.date()
 
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO climate_readings(
-                    sensor_id,
-                    temperature_c,
-                    humidity_pct,
-                    temperature_raw,
-                    humidity_raw,
-                    temperature_received_at,
-                    humidity_received_at,
-                    recorded_at,
-                    mqtt_broker
+                INSERT INTO "capteur"(
+                    "humidité",
+                    "temperature",
+                    "date",
+                    "ID_entrepot"
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s)
                 """,
                 (
-                    SENSOR_ID,
-                    snapshot["temperature"]["value"],
                     snapshot["humidity"]["value"],
-                    snapshot["temperature"]["raw"],
-                    snapshot["humidity"]["raw"],
-                    snapshot["temperature"]["received_at"],
-                    snapshot["humidity"]["received_at"],
-                    recorded_at,
-                    MQTT_BROKER,
+                    snapshot["temperature"]["value"],
+                    record_date,
+                    ID_ENTREPOT,
                 ),
             )
         conn.commit()
