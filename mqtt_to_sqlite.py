@@ -10,11 +10,11 @@ import psycopg
 MQTT_BROKER = os.getenv("MQTT_BROKER", "127.0.0.1")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 MQTT_TOPIC = os.getenv("MQTT_TOPIC", "capteur/#")
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
+DB_HOST = os.getenv("DB_HOST", "db-brazil")
 DB_PORT = int(os.getenv("DB_PORT", "5432"))
-DB_NAME = os.getenv("DB_NAME", "sensors")
-DB_USER = os.getenv("DB_USER", "user")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
+DB_NAME = os.getenv("DB_NAME", "futurekawa_brazil")
+DB_USER = os.getenv("DB_USER", "futurekawa")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "futurekawa_pwd")
 DATABASE_URL = os.getenv("DATABASE_URL")
 INSERT_INTERVAL_SECONDS = int(os.getenv("INSERT_INTERVAL_SECONDS", "3"))
 TEMPERATURE_TOPIC = os.getenv("TEMPERATURE_TOPIC", "capteur/temperature")
@@ -50,7 +50,7 @@ def init_db() -> None:
                 """
                 CREATE TABLE IF NOT EXISTS "capteur" (
                     "ID_capteur" serial NOT NULL,
-                    "humidité" double precision,
+                    "humidite" double precision,
                     "temperature" double precision,
                     "date" date,
                     "ID_entrepot" integer NOT NULL,
@@ -121,7 +121,7 @@ def insert_snapshot() -> None:
             cur.execute(
                 """
                 INSERT INTO "capteur"(
-                    "humidité",
+                    "humidite",
                     "temperature",
                     "date",
                     "ID_entrepot"

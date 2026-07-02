@@ -7,7 +7,8 @@
 
 const char* ssid = "EPSI-Lab";
 const char* password = "EPSIGrenoble";
-const char* mqtt_server = "172.16.0.56"; // ⚠️ IP de TON PC
+const char* mqtt_server = "192.168.1.96"; // IP actuelle du PC qui heberge le broker MQTT
+const int mqtt_port = 1884;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -24,7 +25,7 @@ void setup_wifi() {
     Serial.print(".");
   }
 
-  Serial.println("\nWiFi connecté !");
+  Serial.println("\nWiFi connecte !");
   Serial.print("IP ESP : ");
   Serial.println(WiFi.localIP());
 }
@@ -53,7 +54,7 @@ void setup() {
 
   setup_wifi();
 
-  client.setServer(mqtt_server, 1883);
+  client.setServer(mqtt_server, mqtt_port);
 }
 
 void loop() {
@@ -89,3 +90,4 @@ void loop() {
 
   delay(2000);
 }
+

@@ -3,7 +3,7 @@ services:
     image: eclipse-mosquitto:2
     container_name: mqtt_broker
     ports:
-      - "1883:1883"
+      - "1884:1883"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
 
@@ -15,7 +15,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: sensors
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -30,8 +30,6 @@ services:
       dockerfile: Dockerfile
     container_name: mqtt_collector
     depends_on:
-      postgres:
-        condition: service_healthy
       mosquitto:
         condition: service_started
     environment:
@@ -43,11 +41,14 @@ services:
       HUMIDITY_TOPIC: capteur/humidite
       SENSOR_ID: ESP8266_DHT11
       INSERT_INTERVAL_SECONDS: 3
-      DB_HOST: postgres
+      DB_HOST: db-brazil
       DB_PORT: 5432
-      DB_NAME: sensors
-      DB_USER: user
-      DB_PASSWORD: password
+      DB_NAME: futurekawa_brazil
+      DB_USER: futurekawa
+      DB_PASSWORD: futurekawa_pwd
+    networks:
+      - default
+      - brazil_backend
 
   pgadmin:
     image: dpage/pgadmin4:8
@@ -66,3 +67,8 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+
+networks:
+  brazil_backend:
+    external: true
+    name: mspr5_serveurs_default
